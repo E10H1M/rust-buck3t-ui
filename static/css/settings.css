@@ -1,0 +1,47 @@
+/* Settings panel styles */
+.settings {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 6px var(--shadow);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.settings h1 {
+  font-size: 18px;
+  margin-bottom: 16px;
+}
+
+.settings .field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 14px;
+}
+
+.settings label {
+  font-size: 14px;
+  margin-bottom: 6px;
+  color: var(--muted);
+}
+
+.settings input[type="text"] {
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+}
+
+.settings .btn {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  background: var(--button-bg);
+  color: var(--button-text);
+  cursor: pointer;
+}
+
+.settings .btn:hover {
+  opacity: 0.9;
+}
