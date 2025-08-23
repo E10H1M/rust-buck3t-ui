@@ -4,9 +4,18 @@ version = "0.0.1"
 edition = "2021"
 
 [dependencies]
+# core
 actix-web = "*"
 actix-files = "*"
+
+# upload + forward
+actix-multipart = "*"
+percent-encoding = "*"
+reqwest = { version = "*", features = ["json", "stream"] }
+
+# serde/env/util
 serde = { version = "*", features = ["derive"] }
-reqwest = { version = "*", features = ["json"] }
-serde_json = "1"
-dotenvy = "0.15"
+serde_json = "*"
+dotenvy = "*"
+futures-util = "*"
+

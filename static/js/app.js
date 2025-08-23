@@ -1,3 +1,5 @@
+// static/js/app.js
+
 import { createMenuBar } from "/static/js/menubar.js";
 import { createSidebar } from "/static/js/sidebar.js";
 import { createViewer } from "/static/js/viewer.js";
