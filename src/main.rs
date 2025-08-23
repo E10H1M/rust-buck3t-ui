@@ -1,14 +1,17 @@
-// src/main.rs (ui)
+// src/main.rs
 use actix_files as fs;
 use actix_web::{App, HttpServer, HttpResponse, web};
 use actix_web::http::StatusCode;
 use std::collections::HashMap;
 use reqwest;
 
-async fn ping_backend() -> HttpResponse {
-    let url = "http://127.0.0.1:8080/healthz";
+mod consts;
+use consts::{Config, PATH_HEALTHZ, PATH_OBJECTS};
+
+async fn ping_backend(cfg: web::Data<Config>) -> HttpResponse {
+    let url = cfg.join_backend(PATH_HEALTHZ);
     println!("→ proxying ping to {url}");
-    match reqwest::get(url).await {
+    match reqwest::get(&url).await {
         Ok(resp) => {
             let status = StatusCode::from_u16(resp.status().as_u16())
                 .unwrap_or(StatusCode::INTERNAL_SERVER_ERROR);
@@ -20,8 +23,10 @@ async fn ping_backend() -> HttpResponse {
     }
 }
 
-// 🔹 NEW: proxy list objects
-async fn list_objects_proxy(query: web::Query<HashMap<String, String>>) -> HttpResponse {
+async fn list_objects_proxy(
+    cfg: web::Data<Config>,
+    query: web::Query<HashMap<String, String>>,
+) -> HttpResponse {
     let qs = if query.is_empty() {
         "".to_string()
     } else {
@@ -31,7 +36,7 @@ async fn list_objects_proxy(query: web::Query<HashMap<String, String>>) -> HttpR
         format!("?{}", pairs.join("&"))
     };
 
-    let url = format!("http://127.0.0.1:8080/objects{}", qs);
+    let url = format!("{}{}", cfg.join_backend(PATH_OBJECTS), qs);
     println!("→ proxying objects to {url}");
 
     match reqwest::get(&url).await {
@@ -50,15 +55,20 @@ async fn list_objects_proxy(query: web::Query<HashMap<String, String>>) -> HttpR
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    println!("🚀 rust-buck3t-ui on http://127.0.0.1:8085");
+    let cfg = Config::from_env();
+    println!("🚀 rust-buck3t-ui on http://{}:{}", cfg.ui_host, cfg.ui_port);
 
-    HttpServer::new(|| {
+    let cfg_for_server = cfg.clone();
+
+    HttpServer::new(move || {
         App::new()
+            .app_data(web::Data::new(cfg_for_server.clone()))
             .route("/api/ping", web::get().to(ping_backend))
-            .route("/api/objects", web::get().to(list_objects_proxy)) // 🔹 add proxy
+            .route("/api/objects", web::get().to(list_objects_proxy))
             .service(fs::Files::new("/static", "./static").index_file("index.html"))
     })
-    .bind(("127.0.0.1", 8085))?
+    .bind((cfg.ui_host.as_str(), cfg.ui_port))?
     .run()
     .await
+
 }

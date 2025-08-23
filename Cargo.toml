@@ -8,5 +8,5 @@ actix-web = "*"
 actix-files = "*"
 serde = { version = "*", features = ["derive"] }
 reqwest = { version = "*", features = ["json"] }
-
 serde_json = "1"
+dotenvy = "0.15"
