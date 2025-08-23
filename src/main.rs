@@ -1,3 +1,4 @@
+// src/main.rs (frontend UI)
 use actix_files as fs;
 use actix_web::{App, HttpServer, web};
 
@@ -13,14 +14,13 @@ async fn main() -> std::io::Result<()> {
 
     let cfg_for_server = cfg.clone();
 
-    // in main() when building App
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(cfg_for_server.clone()))
-            .app_data(web::PayloadConfig::new(50 * 1024 * 1024)) // match MAX_UPLOAD_BYTES (50 MiB)
+            .app_data(web::PayloadConfig::new(50 * 1024 * 1024))
             .configure(routes::health::init)
-            .configure(routes::objects::init)
-            .configure(routes::upload::init)
+            .configure(routes::upload::init)  // <-- register PUT first
+            .configure(routes::objects::init) // <-- then GET/HEAD/DELETE
             .service(fs::Files::new("/static", "./static").index_file("index.html"))
     })
     .bind((cfg.ui_host.as_str(), cfg.ui_port))?

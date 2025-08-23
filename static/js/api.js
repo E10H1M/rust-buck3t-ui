@@ -40,3 +40,15 @@ export async function uploadObject(key, file, opts = {}) {
   if (!res.ok) throw new Error(await res.text() || res.statusText);
   return res;
 }
+
+/**
+ * Delete an object
+ * @param {string} key
+ */
+export async function deleteObject(key) {
+  const res = await fetch(`/api/objects/${encodeURIComponent(key)}`, {
+    method: "DELETE",
+  });
+  if (!res.ok) throw new Error(await res.text() || res.statusText);
+  return res;
+}

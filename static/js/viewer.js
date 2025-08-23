@@ -16,6 +16,11 @@ function el(t, c, txt) {
   return n;
 }
 
+function encKeyForPath(k) {
+  // encode each segment so slashes remain as path separators
+  return k.split('/').map(encodeURIComponent).join('/');
+}
+
 export function createViewer() {
   const container = el("div", "viewer");
 
@@ -38,7 +43,41 @@ export function createViewer() {
     }
 
     objs.forEach(o => {
-      const li = el("li", "object-item", `${o.key} (${o.size} bytes)`);
+      const li = el("li", "object-item");
+      const label = el("span", "object-label", `${o.key} (${o.size} bytes)`);
+
+      const actions = el("div", "object-actions");
+
+      // Open (inline)
+      const openA = el("a", "btn small");
+      openA.textContent = "Open";
+      openA.href = `/api/objects/${encKeyForPath(o.key)}?download=0`;
+      openA.target = "_blank";
+      openA.rel = "noopener";
+
+      // Download (attachment)
+      const dlA = el("a", "btn small secondary");
+      dlA.textContent = "Download";
+      dlA.href = `/api/objects/${encKeyForPath(o.key)}?download=1`;
+      // set filename hint for browsers
+      const filename = o.key.split('/').pop() || "file";
+      dlA.setAttribute("download", filename);
+
+      // Delete (already wired via app.js)
+      const delBtn = el("button", "btn small danger", "Delete");
+      delBtn.title = `Delete ${o.key}`;
+      delBtn.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        if (!confirm(`Delete "${o.key}"?`)) return;
+        window.dispatchEvent(new CustomEvent("app:deleteObject", { detail: { key: o.key } }));
+      });
+
+      actions.appendChild(openA);
+      actions.appendChild(dlA);
+      actions.appendChild(delBtn);
+
+      li.appendChild(label);
+      li.appendChild(actions);
       list.appendChild(li);
     });
   }
@@ -48,7 +87,6 @@ export function createViewer() {
     list.appendChild(el("li", "error", "Failed to load objects: " + err));
   }
 
-  // listen for app events
   window.addEventListener("api:objects", e => renderObjects(e.detail));
   window.addEventListener("api:objectsError", e => renderError(e.detail));
 

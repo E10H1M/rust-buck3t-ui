@@ -8,7 +8,6 @@
   }
 })();
 
-
 export function createMenuBar() {
   const nav = document.createElement("nav");
   nav.className = "menubar";
@@ -60,27 +59,6 @@ export function createMenuBar() {
     if (active) active.textContent += " ✓";
   }
 
-  // File menu
-  menuList.appendChild(makeMenu("File", [
-    { label: "New", onClick: () => console.log("new file") },
-    { label: "Open…", onClick: () => console.log("open file") },
-    { label: "Save", onClick: () => console.log("save file") },
-    "hr",
-    { label: "Exit", onClick: () => console.log("exit app") }
-  ]));
-
-  // Edit menu
-  menuList.appendChild(makeMenu("Edit", [
-    { label: "Undo", onClick: () => console.log("undo") },
-    { label: "Redo", onClick: () => console.log("redo") },
-    "hr",
-    { label: "Cut", onClick: () => console.log("cut") },
-    { label: "Copy", onClick: () => console.log("copy") },
-    { label: "Paste", onClick: () => console.log("paste") }
-  ]));
-
-
-
   // MODE MENU
   menuList.appendChild(makeMenu("Mode", [
     {
@@ -118,11 +96,7 @@ export function createMenuBar() {
     if (btn) btn.textContent += " ✓";
   });
 
-
-
-
-
-  // View menu
+  // VIEW MENU
   const viewLi = document.createElement("li");
   viewLi.textContent = "View";
   const viewUl = document.createElement("ul");
@@ -161,7 +135,7 @@ export function createMenuBar() {
   viewLi.appendChild(viewUl);
   menuList.appendChild(viewLi);
 
-  // Help menu
+  // HELP MENU
   menuList.appendChild(makeMenu("Help", [
     { label: "About", onClick: () => alert("Image Generator v1.0") }
   ]));

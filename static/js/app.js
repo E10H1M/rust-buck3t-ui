@@ -1,11 +1,10 @@
 // /static/js/app.js
-
 import { createMenuBar } from "/static/js/menubar.js";
 import { createSidebar } from "/static/js/sidebar.js";
 import { createViewer } from "/static/js/viewer.js";
 import { createSettings } from "/static/js/settings.js";
 import { createUpload } from "/static/js/upload.js";
-import { ping, listObjects, uploadObject } from "/static/js/api.js";
+import { ping, listObjects, uploadObject, deleteObject } from "/static/js/api.js";
 
 // mount global UI
 document.getElementById("sidebar-root").appendChild(createSidebar());
@@ -108,6 +107,19 @@ window.addEventListener("app:uploadFile", async (e) => {
     window.dispatchEvent(new CustomEvent("api:uploadProgress", {
       detail: { file, status: "❌ failed: " + err.message }
     }));
+  }
+});
+
+// hook up deletes
+window.addEventListener("app:deleteObject", async (e) => {
+  const key = e.detail?.key;
+  if (!key) return;
+  try {
+    await deleteObject(key);
+    window.dispatchEvent(new Event("app:refreshObjects"));
+    window.dispatchEvent(new CustomEvent("api:deleteResult", { detail: { key, status: "✅ deleted" } }));
+  } catch (err) {
+    window.dispatchEvent(new CustomEvent("api:deleteResult", { detail: { key, status: "❌ failed: " + err.message } }));
   }
 });
 

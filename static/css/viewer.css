@@ -1,3 +1,5 @@
+/* /static/css/viewer.css */
+
 /* Bucket viewer panel */
 .viewer {
   background: var(--panel);
@@ -28,11 +30,18 @@
   background: var(--bg);
   font-size: 14px;
   color: var(--ink);
-  cursor: default;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .viewer .object-item:hover {
   background: var(--menu-hover);
+}
+
+.viewer .object-actions {
+  display: flex;
+  gap: 8px;
 }
 
 .viewer .btn {
@@ -42,6 +51,22 @@
   background: var(--button-bg);
   color: var(--button-text);
   cursor: pointer;
+  text-decoration: none;
+}
+
+.viewer .btn.small {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.viewer .btn.secondary {
+  background: var(--button-bg-secondary, #5c6bc0);
+  color: var(--button-text-secondary, #fff);
+}
+
+.viewer .btn.danger {
+  background: var(--danger-bg, #e53935);
+  color: var(--danger-text, #fff);
 }
 
 .viewer .btn:hover {
