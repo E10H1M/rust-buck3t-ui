@@ -18,6 +18,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(cfg_for_server.clone()))
             .configure(routes::health::init)
             .configure(routes::objects::init) // ✅ new objects route
+            .configure(routes::upload::init) //  ✅ new upload route
             .service(fs::Files::new("/static", "./static").index_file("index.html"))
     })
     .bind((cfg.ui_host.as_str(), cfg.ui_port))?
