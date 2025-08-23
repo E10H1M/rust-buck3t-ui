@@ -23,3 +23,20 @@ export async function listObjects() {
 
   return data;
 }
+
+/**
+ * Upload an object
+ * @param {string} key   object key (usually file.name)
+ * @param {File|Blob} file   the raw file data
+ * @param {Object} [opts]    optional fetch options (headers, overwrite control, etc.)
+ */
+export async function uploadObject(key, file, opts = {}) {
+  const res = await fetch(`/api/objects/${encodeURIComponent(key)}`, {
+    method: "PUT",
+    body: file,
+    headers: opts.headers || {},
+  });
+
+  if (!res.ok) throw new Error(await res.text() || res.statusText);
+  return res;
+}
