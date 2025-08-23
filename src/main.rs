@@ -1,43 +1,10 @@
 use actix_files as fs;
-use actix_web::{App, HttpServer, HttpResponse, web};
-use actix_web::http::StatusCode;
-use std::collections::HashMap;
-use reqwest;
+use actix_web::{App, HttpServer, web};
 
 mod consts;
 mod routes;
 
-use consts::{Config, PATH_OBJECTS};
-
-async fn list_objects_proxy(
-    cfg: web::Data<Config>,
-    query: web::Query<HashMap<String, String>>,
-) -> HttpResponse {
-    let qs = if query.is_empty() {
-        "".to_string()
-    } else {
-        let pairs: Vec<String> = query.iter()
-            .map(|(k, v)| format!("{}={}", k, v))
-            .collect();
-        format!("?{}", pairs.join("&"))
-    };
-
-    let url = format!("{}{}", cfg.join_backend(PATH_OBJECTS), qs);
-    println!("→ proxying objects to {url}");
-
-    match reqwest::get(&url).await {
-        Ok(resp) => {
-            let status = StatusCode::from_u16(resp.status().as_u16())
-                .unwrap_or(StatusCode::INTERNAL_SERVER_ERROR);
-            let body = resp.text().await.unwrap_or_else(|_| "error reading body".into());
-            HttpResponse::build(status)
-                .append_header(("Content-Type", "application/json"))
-                .body(body)
-        }
-        Err(e) => HttpResponse::InternalServerError()
-            .body(format!("failed to reach backend: {}", e)),
-    }
-}
+use consts::Config;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -49,8 +16,8 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(cfg_for_server.clone()))
-            .configure(routes::health::init) // ✅ replaced old ping_backend route
-            .route("/api/objects", web::get().to(list_objects_proxy))
+            .configure(routes::health::init)
+            .configure(routes::objects::init) // ✅ new objects route
             .service(fs::Files::new("/static", "./static").index_file("index.html"))
     })
     .bind((cfg.ui_host.as_str(), cfg.ui_port))?
