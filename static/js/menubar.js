@@ -89,6 +89,11 @@ export function createMenuBar() {
         window.dispatchEvent(new CustomEvent("app:setMode", { detail: { mode: "viewer" } })),
     },
     {
+      label: "Upload",
+      onClick: () =>
+        window.dispatchEvent(new CustomEvent("app:setMode", { detail: { mode: "upload" } })),
+    },
+    {
       label: "Settings",
       onClick: () =>
         window.dispatchEvent(new CustomEvent("app:setMode", { detail: { mode: "settings" } })),
@@ -98,14 +103,21 @@ export function createMenuBar() {
   // track active mode for a ✓ mark
   window.addEventListener("app:modeChanged", (e) => {
     const mode = e.detail?.mode;
+
     [...document.querySelectorAll(".dropdown button")].forEach(b => {
       if (b.textContent.endsWith(" ✓")) b.textContent = b.textContent.slice(0, -2);
     });
+
     const btn = [...document.querySelectorAll(".dropdown button")]
-      .find(b => (mode === "viewer" && b.textContent.startsWith("Viewer")) ||
-                 (mode === "settings" && b.textContent.startsWith("Settings")));
+      .find(b =>
+        (mode === "viewer" && b.textContent.startsWith("Viewer")) ||
+        (mode === "upload" && b.textContent.startsWith("Upload")) ||
+        (mode === "settings" && b.textContent.startsWith("Settings"))
+      );
+
     if (btn) btn.textContent += " ✓";
   });
+
 
 
 
