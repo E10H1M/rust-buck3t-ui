@@ -1,4 +1,3 @@
-// src/main.rs
 use actix_files as fs;
 use actix_web::{App, HttpServer, HttpResponse, web};
 use actix_web::http::StatusCode;
@@ -6,22 +5,9 @@ use std::collections::HashMap;
 use reqwest;
 
 mod consts;
-use consts::{Config, PATH_HEALTHZ, PATH_OBJECTS};
+mod routes;
 
-async fn ping_backend(cfg: web::Data<Config>) -> HttpResponse {
-    let url = cfg.join_backend(PATH_HEALTHZ);
-    println!("→ proxying ping to {url}");
-    match reqwest::get(&url).await {
-        Ok(resp) => {
-            let status = StatusCode::from_u16(resp.status().as_u16())
-                .unwrap_or(StatusCode::INTERNAL_SERVER_ERROR);
-            let body = resp.text().await.unwrap_or_else(|_| "error reading body".into());
-            HttpResponse::build(status).body(body)
-        }
-        Err(e) => HttpResponse::InternalServerError()
-            .body(format!("failed to reach backend: {}", e)),
-    }
-}
+use consts::{Config, PATH_OBJECTS};
 
 async fn list_objects_proxy(
     cfg: web::Data<Config>,
@@ -63,12 +49,11 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(cfg_for_server.clone()))
-            .route("/api/ping", web::get().to(ping_backend))
+            .configure(routes::health::init) // ✅ replaced old ping_backend route
             .route("/api/objects", web::get().to(list_objects_proxy))
             .service(fs::Files::new("/static", "./static").index_file("index.html"))
     })
     .bind((cfg.ui_host.as_str(), cfg.ui_port))?
     .run()
     .await
-
 }
