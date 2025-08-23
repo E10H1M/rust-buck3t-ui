@@ -1,3 +1,5 @@
+// /static/js/viewer.js
+
 (function loadViewerCSS() {
   if (!document.querySelector('link[href="/static/css/viewer.css"]')) {
     const link = document.createElement("link");

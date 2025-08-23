@@ -1,3 +1,5 @@
+// /static/js/settings.js
+
 (function loadSettingsCSS() {
   if (!document.querySelector('link[href="/static/css/settings.css"]')) {
     const link = document.createElement("link");

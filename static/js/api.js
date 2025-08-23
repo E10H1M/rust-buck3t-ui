@@ -1,3 +1,4 @@
+// /static/js/api.js
 // centralized backend API helpers
 
 export async function ping() {
