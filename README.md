@@ -5,6 +5,9 @@
 A rust [Actix Web](https://actix.rs/) client that acts as a proxy for [rust-buck3t](https://github.com/E10H1M/rust-buck3t).
 Something for the non CLI savy but also to help flesh out debugging and development of the tool at a faster speed.
 
+## Docs
+[![Documentation](https://img.shields.io/badge/docs-rust--buck3t--ui-blue)](https://e10h1m.github.io/rust-buck3t-ui/)
+
 
 
 ## Quickstart
