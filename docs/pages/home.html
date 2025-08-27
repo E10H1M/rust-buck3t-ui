@@ -1,0 +1,31 @@
+<section id="clone">
+  <h2>Clone the Repository</h2>
+  <pre><code>git clone https://github.com/E10H1M/rust-buck3t-ui.git</code></pre>
+</section>
+
+<section id="getting-started">
+  <h2>Getting Started</h2>
+  <p>Create a <code>.env</code> file in the project root to configure the server:</p>
+
+  <pre><code>
+BACKEND_BASE=http://127.0.0.1:8080
+UI_HOST=127.0.0.1
+UI_PORT=8085
+  </code></pre>
+
+  <p>These values are optional. If not set, the defaults are:</p>
+  <ul>
+    <li><code>BACKEND_BASE</code>: <code>http://127.0.0.1:8080</code></li>
+    <li><code>UI_HOST</code>: <code>127.0.0.1</code></li>
+    <li><code>UI_PORT</code>: <code>8085</code></li>
+  </ul>
+</section>
+
+<section id="running">
+  <h2>Running</h2>
+  <pre><code>cargo run</code></pre>
+  <p>
+    The UI will run on <code>http://127.0.0.1:8085</code> by default,
+    or whatever you set in your <code>.env</code>.
+  </p>
+</section>

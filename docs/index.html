@@ -1,12 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>rust-buck3t-ui docs</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>rust-buck3t-ui docs</title>
+  <link rel="stylesheet" href="css/style.css"> 
+  <style>
+    nav { margin-bottom: 1.5em; }
+    nav a { margin-right: 1em; cursor: pointer; text-decoration: underline; }
+    #content { padding: 1em; }
+  </style>
 </head>
 <body>
-    <h1>Hello World</h1>
     
+  <div id="docs">
+    <h1>rust-buck3t-ui</h1>
+
+    <nav>
+      <a onclick="loadPage('pages/home.html')">Home</a> |
+      <a onclick="loadPage('pages/install-rust.html')">Installing Rust</a>
+    </nav>
+
+    <section id="features">
+      <h2>Feature Showcase</h2>
+      <div class="feature-grid">
+          <div class="feature">
+              <img src="static/bulk uploads.gif" alt="Bulk Uploads">
+              <p>Bulk Uploads</p>
+          </div>
+          <div class="feature">
+              <img src="static/change_style.gif" alt="Change Style">
+              <p>Change Style</p>
+          </div>
+          <div class="feature">
+              <img src="static/delete.gif" alt="Delete Objects">
+              <p>Delete Objects</p>
+          </div>
+          <div class="feature">
+              <img src="static/view data.gif" alt="View Data">
+              <p>View/Download Data</p>
+          </div>
+      </div>
+    </section>
+
+
+    <div id="content">
+      <!-- default load -->
+      <p>Loading...</p>
+    </div>
+  </div>
+
+  <script>
+    // load a subpage into #content
+    function loadPage(path) {
+      fetch(path)
+        .then(resp => resp.text())
+        .then(html => {
+          document.getElementById("content").innerHTML = html;
+        })
+        .catch(err => {
+          document.getElementById("content").innerHTML = "<p>Error loading page.</p>";
+          console.error(err);
+        });
+    }
+
+    // load Home by default
+    window.addEventListener("DOMContentLoaded", () => {
+      loadPage("./pages/home.html");
+    });
+  </script>
 </body>
 </html>
