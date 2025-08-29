@@ -1,3 +1,4 @@
+// static/js/auth.js
 import { signup, login } from "/static/js/api.js";
 
 (function loadAuthCSS() {
