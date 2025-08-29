@@ -140,6 +140,11 @@ export function createMenuBar() {
     { label: "About", onClick: () => alert("Image Generator v1.0") }
   ]));
 
+  // ACCOUNT STUFF
+  menuList.appendChild(makeMenu("Account", [
+    { label: "Log out", onClick: () => window.dispatchEvent(new Event("app:logout")) }
+  ]));
+
   nav.appendChild(menuList);
 
   // --- set initial theme ---
