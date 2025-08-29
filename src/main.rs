@@ -19,6 +19,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(cfg_for_server.clone()))
             .app_data(web::PayloadConfig::new(50 * 1024 * 1024))
             .configure(routes::health::init)
+            .configure(routes::session::init) 
             .configure(routes::upload::init)  // <-- register PUT first
             .configure(routes::objects::init) // <-- then GET/HEAD/DELETE
             .service(fs::Files::new("/static", "./static").index_file("index.html"))
