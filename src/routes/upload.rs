@@ -1,5 +1,4 @@
-// routes/upload.rs
-
+// src/routes/upload.rs
 use actix_web::{web, HttpRequest, HttpResponse};
 use actix_web::http::{header, StatusCode};
 use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
@@ -21,7 +20,7 @@ fn reencode_key(key: &str) -> String {
 }
 
 // Upload proxy: forwards file upload to backend
-async fn put_object_proxy(
+pub(super) async fn put_object_proxy(
     cfg: web::Data<Config>,
     req: HttpRequest,
     body: web::Bytes,          // buffered body is fine for now
@@ -33,6 +32,14 @@ async fn put_object_proxy(
 
     // Pass through only the headers the backend cares about; let reqwest set Content-Length
     let mut headers = HeaderMap::new();
+
+    // 🔐 forward auth from cookie -> Authorization: Bearer ...
+    if let Some(tok) = req.cookie("rb_token") {
+        if let Ok(hv) = HeaderValue::from_str(&format!("Bearer {}", tok.value())) {
+            headers.insert("authorization", hv);
+        }
+    }
+
     if let Some(v) = req.headers().get(header::IF_MATCH) {
         if let Ok(hv) = HeaderValue::from_bytes(v.as_bytes()) { headers.insert("if-match", hv); }
     }
