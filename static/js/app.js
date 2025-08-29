@@ -1,24 +1,46 @@
 // /static/js/app.js
+import { createAuth } from "/static/js/auth.js";
 import { createMenuBar } from "/static/js/menubar.js";
 import { createSidebar } from "/static/js/sidebar.js";
 import { createViewer } from "/static/js/viewer.js";
 import { createSettings } from "/static/js/settings.js";
 import { createUpload } from "/static/js/upload.js";
-import { ping, listObjects, uploadObject, deleteObject } from "/static/js/api.js";
+import { ping, listObjects, uploadObject, deleteObject, logout } from "/static/js/api.js";
 
 // mount global UI
-document.getElementById("sidebar-root").appendChild(createSidebar());
-document.getElementById("menubar-root").appendChild(createMenuBar());
+// document.getElementById("sidebar-root").appendChild(createSidebar());
+// document.getElementById("menubar-root").appendChild(createMenuBar());
+
+const sidebarRoot = document.getElementById("sidebar-root");
+const menubarRoot = document.getElementById("menubar-root");
+
+function mountChrome() {
+  if (!menubarRoot.firstChild) menubarRoot.appendChild(createMenuBar());
+  if (!sidebarRoot.firstChild) sidebarRoot.appendChild(createSidebar());
+}
+
+function unmountChrome() {
+  menubarRoot.replaceChildren();
+  sidebarRoot.replaceChildren();
+}
 
 // roots
 const roots = {
+  auth: document.getElementById("auth-root"),  
   viewer: document.getElementById("viewer-root"),
   upload: document.getElementById("upload-root"),
   settings: document.getElementById("settings-root"),
 };
 
 // instances (lazy)
-const instances = { viewer: null, upload: null, settings: null };
+const instances = { auth: null, viewer: null, upload: null, settings: null };
+function mountAuth() {
+  if (!instances.auth) {
+    const el = createAuth();
+    roots.auth.appendChild(el);
+    instances.auth = el;
+  }
+}
 
 function mountViewer() {
   if (!instances.viewer) {
@@ -45,28 +67,48 @@ function mountSettings() {
 }
 
 function showRoot(which) {
+  roots.auth.style.display    = (which === "auth")    ? "" : "none";
   roots.viewer.style.display   = (which === "viewer")   ? "" : "none";
   roots.upload.style.display   = (which === "upload")   ? "" : "none";
   roots.settings.style.display = (which === "settings") ? "" : "none";
 }
 
-let mode = "viewer";
+let mode = "auth";
 function setMode(next) {
   if (next === mode) return;
   mode = next;
 
-  if (mode === "viewer")   mountViewer();
-  if (mode === "upload")   mountUpload();
-  if (mode === "settings") mountSettings();
+  if (mode === "auth")    mountAuth();   // <-- add
+  if (mode === "viewer")  mountViewer();
+  if (mode === "upload")  mountUpload();
+  if (mode === "settings")mountSettings();
 
   showRoot(mode);
   window.dispatchEvent(new CustomEvent("app:modeChanged", { detail: { mode } }));
 }
 
 // boot
-mountViewer();
-showRoot("viewer");
-window.dispatchEvent(new CustomEvent("app:modeChanged", { detail: { mode: "viewer" } }));
+mountAuth();
+showRoot("auth");
+window.dispatchEvent(new CustomEvent("app:modeChanged", { detail: { mode: "auth" } }));
+
+
+
+window.addEventListener("api:loginSuccess", () => {
+  mountChrome();
+  setMode("viewer");
+  window.dispatchEvent(new Event("app:refreshObjects"));
+});
+window.addEventListener("api:loggedOut", () => {
+  unmountChrome();
+  ["viewer","upload","settings","auth"].forEach(k => { roots[k].replaceChildren(); instances[k]=null; });
+  setMode("auth");
+});
+
+window.addEventListener("app:logout", async () => {
+  try { await logout(); }
+  catch (e) { alert("Logout failed: " + (e?.message || e)); }
+});
 
 // menubar drives app mode
 window.addEventListener("app:setMode", (e) => {
@@ -124,4 +166,4 @@ window.addEventListener("app:deleteObject", async (e) => {
 });
 
 // first load
-window.dispatchEvent(new Event("app:refreshObjects"));
+// window.dispatchEvent(new Event("app:refreshObjects"));
