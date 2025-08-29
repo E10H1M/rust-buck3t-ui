@@ -8,9 +8,6 @@ import { createUpload } from "/static/js/upload.js";
 import { ping, listObjects, uploadObject, deleteObject, logout } from "/static/js/api.js";
 
 // mount global UI
-// document.getElementById("sidebar-root").appendChild(createSidebar());
-// document.getElementById("menubar-root").appendChild(createMenuBar());
-
 const sidebarRoot = document.getElementById("sidebar-root");
 const menubarRoot = document.getElementById("menubar-root");
 
@@ -87,10 +84,8 @@ function setMode(next) {
   window.dispatchEvent(new CustomEvent("app:modeChanged", { detail: { mode } }));
 }
 
-// boot
-mountAuth();
-showRoot("auth");
-window.dispatchEvent(new CustomEvent("app:modeChanged", { detail: { mode: "auth" } }));
+
+
 
 
 
@@ -123,15 +118,51 @@ ping()
   .then(txt => console.log("Backend ping →", txt))
   .catch(err => console.error("Backend ping failed:", err));
 
-// hook up viewer refresh
-window.addEventListener("app:refreshObjects", async () => {
+
+
+// ----------------------------- viewer refesh handler / folder state / history manager ---------------------
+let currentPrefix = "";
+
+currentPrefix = new URLSearchParams(location.search).get("prefix") || "";
+
+// Ensure the current history entry has state (so Back → root works)
+history.replaceState(
+  { prefix: currentPrefix },
+  "",
+  currentPrefix
+    ? `${location.pathname}?prefix=${encodeURIComponent(currentPrefix)}`
+    : location.pathname
+);
+
+window.addEventListener("app:refreshObjects", async (e) => {
+  if (e?.detail && typeof e.detail.prefix === "string") {
+    currentPrefix = e.detail.prefix;
+  }
   try {
-    const objs = await listObjects();
-    window.dispatchEvent(new CustomEvent("api:objects", { detail: objs }));
+    const objs = await listObjects({ recursive: true, prefix: currentPrefix || undefined });
+    window.dispatchEvent(new CustomEvent("api:objects", { detail: { objects: objs, prefix: currentPrefix } }));
   } catch (err) {
     window.dispatchEvent(new CustomEvent("api:objectsError", { detail: err.message }));
   }
 });
+
+// Handle browser Back/Forward
+window.addEventListener("popstate", (e) => {
+  const p = (e.state && typeof e.state.prefix === "string")
+    ? e.state.prefix
+    : new URLSearchParams(location.search).get("prefix") || "";
+
+  if (p === currentPrefix) return; // no change
+  currentPrefix = p;
+
+  window.dispatchEvent(
+    new CustomEvent("app:refreshObjects", { detail: { prefix: currentPrefix } })
+  );
+});
+
+
+
+
 
 // hook up uploads
 window.addEventListener("app:uploadFile", async (e) => {
@@ -165,5 +196,27 @@ window.addEventListener("app:deleteObject", async (e) => {
   }
 });
 
-// first load
-// window.dispatchEvent(new Event("app:refreshObjects"));
+
+
+
+// ----------------------------- boot manager  ---------------------
+// boot — try to restore session; fall back to auth
+(async function boot() {
+  // Mount Auth so the screen is ready if we’re NOT logged in
+  mountAuth();
+
+  try {
+    // Probe a protected endpoint; if cookie is valid, this succeeds
+    await listObjects({ recursive: true, prefix: currentPrefix || undefined });
+
+    // Session is valid → mount chrome & viewer, then load objects
+    mountChrome();
+    setMode("viewer");
+    window.dispatchEvent(
+      new CustomEvent("app:refreshObjects", { detail: { prefix: currentPrefix } })
+    );
+  } catch (err) {
+    // Not logged in → keep Auth
+    setMode("auth");
+  }
+})();
