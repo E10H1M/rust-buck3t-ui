@@ -7,46 +7,45 @@ Something for the non CLI savy but also to help flesh out debugging and developm
 
 ## Docs
 [![Documentation](https://img.shields.io/badge/docs-rust--buck3t--ui-blue)](https://e10h1m.github.io/rust-buck3t-ui/)
-
+[![Documentation](https://img.shields.io/badge/docs-rust--buck3t-green)](https://e10h1m.github.io/rust-buck3t/)
+[![Actix](https://img.shields.io/badge/docs-actix-brown)](https://actix.rs/)
 
 
 ## Quickstart
 
 ```bash
-# run (defaults to ./data)
 cargo run
-
-# or choose a data dir
-RUST_BUCKET_IP=some_up cargo run
 ```
 
+# Changelog — rust-buck3t-ui
 
+## [Unreleased]
+- Planned: extension system, overhaul of upload area, management interface for configurations 
 
-## Installing the `requirements`
-Some requiremnts for linux:
-- pkg-config
-- libssl-dev
-```
-sudo apt update
-sudo apt install pkg-config libssl-dev
-```
+---
+## [0.0.1] - 2025-08
+### Added
+- **Authentication / Sessions**
+  - Session + object proxies with auth forwarding
+  - Login/logout flow added; UI gated behind authentication
 
-## Installing Rust
-```
-1) Download install script and follow the commands:
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-2) Add to path:
-. "$HOME/.cargo/env"    
-3) Then verify via: 
-rustc --version
-cargo --version
-```
+- **Documentation**
+  - Project documentation hosted via **GitHub Pages**
 
-## Building the project
-To build the rust project you would run this command:
-```
-cargo build
-```
+- **Object Operations**
+  - Uploading objects via front-end user interface
+  - Support for **deletion, upload, download, and inline viewing** of objects in the UI
+
+- **Core Setup**
+  - Initial Actix server + JavaScript front-end integrated and running
+  - Environment configuration with **dotenvy**
+
+### Changed
+- **UI/UX Enhancements**
+  - General bug fixes and feature polish
+  - Wired **Back/Forward history** into the Bucket Viewer (native browser navigation for folders)
+  - Cookie persistence fixed → users are **no longer forced to log in after every refresh**
+  - File navigation UI/UX
 
 
 
